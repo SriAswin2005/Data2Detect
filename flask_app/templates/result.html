@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrafficSign AI - Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TrafficSign AI</h1>
+            <p>Inference Results</p>
+        </header>
+
+        <nav style="display: flex; gap: 10px;">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary" style="margin-bottom: 0;">Upload Another Image</a>
+            <a href="{{ result_url }}" download="annotated_detection.jpg" class="btn btn-primary" style="text-decoration: none; line-height: 1.6;">Download Annotated Image</a>
+        </nav>
+
+        <main class="main-content">
+            <section class="images-section">
+                <h2>Images Comparison</h2>
+                <div class="image-grid">
+                    <div class="image-card">
+                        <h3>Original Image</h3>
+                        <img src="{{ orig_url }}" alt="Original uploaded image" class="responsive-image">
+                    </div>
+                    <div class="image-card">
+                        <h3>Annotated Detections</h3>
+                        <img src="{{ result_url }}" alt="Annotated image showing detections" class="responsive-image">
+                    </div>
+                </div>
+            </section>
+
+            <section class="detections-section">
+                <h2>Detections Summary</h2>
+                <p>Total signs detected: <strong>{{ num_detections }}</strong></p>
+
+                {% if num_detections > 0 %}
+                    <table class="detections-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 70px; text-align: center;">Preview</th>
+                                <th>Class ID</th>
+                                <th>Sign Category Name</th>
+                                <th>Confidence</th>
+                                <th>Bounding Box (X1, Y1, X2, Y2)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for det in detections %}
+                                <tr>
+                                    <td style="text-align: center; vertical-align: middle;">
+                                        {% if det.crop_url %}
+                                            <img src="{{ det.crop_url }}" alt="Sign Crop" width="40" height="40" style="border: 1px solid #cccccc; border-radius: 2px; display: block; margin: 0 auto;">
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ det.class_id }}</td>
+                                    <td>{{ det.class_name }}</td>
+                                    <td>{{ (det.confidence * 100) | round(1) }}%</td>
+                                    <td>[{{ det.bbox[0] }}, {{ det.bbox[1] }}, {{ det.bbox[2] }}, {{ det.bbox[3] }}]</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="alert alert-info">
+                        No traffic signs were detected or verified in this image above the specified confidence thresholds.
+                    </div>
+                {% endif %}
+            </section>
+        </main>
+
+        <footer>
+            <p>TrafficSign AI - Processed successfully.</p>
+        </footer>
+    </div>
+</body>
+</html>

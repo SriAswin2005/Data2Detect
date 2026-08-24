@@ -1,0 +1,45 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Datasets (exceeds GitHub limits)
+data/
+GTSDB/
+gtsrb_raw/
+yolo_data/
+cnn_data/
+
+# Model weights
+# (Weights are allowed to be tracked in this repository)
+
+# YOLO logs and validation runs
+runs/
+
+# Web App uploads and temporary crops
+flask_app/static/uploads/*
+flask_app/static/results/*
+# Keep the directory structure
+!flask_app/static/uploads/.gitkeep
+!flask_app/static/results/.gitkeep
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Project documentation/history and local scratch workspace
+read/
+scratch/

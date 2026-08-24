@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrafficSign AI - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TrafficSign AI</h1>
+            <p>Traffic Sign Detection and Classification System</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% if not has_weights %}
+            <div class="alert alert-warning">
+                <strong>Attention:</strong> Trained model weights were not found in the weights directory. 
+                Please train the models (YOLO and CNN) on Google Colab using the provided notebooks, 
+                download the weights files, and place them in the weights folder as yolo_best.pt and cnn_best.keras.
+            </div>
+        {% endif %}
+
+        <main class="main-content">
+            <section class="upload-section">
+                <h2>Upload Street Image</h2>
+                <p>Select a high-resolution image containing traffic signs to detect and classify them.</p>
+                
+                <form action="{{ url_for('predict') }}" method="POST" enctype="multipart/form-data" class="upload-form">
+                    <div class="upload-box" id="upload-box">
+                        <input type="file" id="file" name="file" accept=".jpg, .jpeg, .png" required>
+                        <p>Drag and drop your image here, or click to browse</p>
+                        <div class="file-name" id="file-name">No file selected</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" {% if not has_weights %}disabled{% endif %}>
+                        Upload and Run Pipeline
+                    </button>
+                </form>
+            </section>
+
+            <section class="info-section">
+                <h2>System Details</h2>
+                <ul>
+                    <li><strong>Stage 1 (Localization):</strong> YOLOv8 model trained as a 1-class detector to locate sign bounding boxes.</li>
+                    <li><strong>Stage 2 (Classification):</strong> Custom VGG-style CNN trained on the GTSRB dataset to classify cropped signs into 43 categories.</li>
+                    <li><strong>Filtering:</strong> Detections with CNN prediction confidence below 80% are automatically rejected.</li>
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p>TrafficSign AI</p>
+        </footer>
+    </div>
+    <script>
+        const uploadBox = document.getElementById('upload-box');
+        const fileInput = document.getElementById('file');
+        const fileNameDisplay = document.getElementById('file-name');
+
+        // Click to open file explorer
+        uploadBox.addEventListener('click', () => fileInput.click());
+
+        // Dragover highlights the border
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('dragover');
+        });
+
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.classList.remove('dragover');
+        });
+
+        // Drop file directly
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                updateFileName();
+            }
+        });
+
+        // Update name on selection
+        fileInput.addEventListener('change', () => {
+            updateFileName();
+        });
+
+        function updateFileName() {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.innerText = "Selected file: " + fileInput.files[0].name;
+            } else {
+                fileNameDisplay.innerText = "No file selected";
+            }
+        }
+
+        // Form loading overlay handler
+        document.querySelector('.upload-form').addEventListener('submit', function() {
+            var btn = document.querySelector('.btn-primary');
+            btn.disabled = true;
+            btn.innerText = 'Processing... Please Wait';
+        });
+    </script>
+</body>
+</html>
